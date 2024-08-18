@@ -46,8 +46,10 @@ public class Main {
 
     private static void sendMessage () {
         String message = messageField.getText();
+        out = connection.out;
         if(!message.isEmpty() && out != null) {
             out.println(message);
+            out.flush();
             if(isServer) {
                 displayMessage("Server sent: " + message);
             } else {
@@ -116,7 +118,7 @@ public class Main {
                 log(port);
                 // Connect to Server client
                 connection = new Connection(ip, port);
-                connection.connectToHost(ip,port);
+
             }
         });
         topPanel.add(connectButton);
@@ -129,7 +131,7 @@ public class Main {
                 String ip = ipField.getText();
                 String port = portField.getText();
                 // start new hosting listen for connections
-                connection = new Connection(ip,port, true);
+                connection = new Connection(ip, port, true);
             }
         });
         topPanel.add(hostButton);

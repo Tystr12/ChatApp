@@ -2,45 +2,45 @@ import java.io.*;
 import java.net.*;
 
 public class Connection {
-    private Socket socket;
-    private BufferedReader in;
-    private PrintWriter out;
+    public Socket socket;
+    public BufferedReader in;
+    public PrintWriter out;
+    public ServerSocket serverSocket;
 
 
 
     public Connection(String ip, String port) {
+        try {
+            this.socket = new Socket(ip, Integer.parseInt(port));
+            this.in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+            this.out = new PrintWriter(socket.getOutputStream(), true);
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
         connectToHost(ip,port);
     }
 
     public Connection(String ip, String port, boolean isServer) {
-        try {
-            startHosting(ip, port);
-        } catch (Exception e) {
-            e.printStackTrace();
+        if(isServer) {
+            startHosting(ip,port);
         }
     }
 
 
     public void connectToHost(String ip, String port) {
-        try {
-            Socket socket = new Socket(ip, Integer.parseInt(port));
-            Main.log("Connected to host " + ip +" " + port);
 
-            BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-            PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
+            Main.log("Connected to host " + ip +" " + port);
 
             Main.setOutputStream(out);
 
             // Thread to listen to new messages
             new Thread(() -> listenForMessages(in, "Client")).start();
 
-            Main.setInputStream(in);
-
             // Thread that sends messages
             new Thread(() -> sendMessage(out)).start();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+
 
 
     }
@@ -69,28 +69,24 @@ public class Connection {
     }
 
     public void startHosting(String ip, String port){
-
         try {
-            ServerSocket serverSocket = new ServerSocket(Integer.parseInt(port));
-            Main.log("Server is running...");
+            this.serverSocket = new ServerSocket(Integer.parseInt(port));
+            this.socket = serverSocket.accept();
+            this.in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+            this.out = new PrintWriter(socket.getOutputStream(),true);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        Main.log("Server is running...");
 
-            Socket clientSocket = serverSocket.accept();
             Main.log("Client connected");
-
-            BufferedReader in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
-            PrintWriter out = new PrintWriter(clientSocket.getOutputStream(), true);
 
             Main.setOutputStream(out);
 
             new Thread(() -> listenForMessages(in, "Server")).start();
 
-            Main.setInputStream(in);
-
             new Thread(() -> sendMessage(out)).start();
 
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
 
     }
 }
