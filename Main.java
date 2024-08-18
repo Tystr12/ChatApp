@@ -4,11 +4,13 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
+import java.io.IOException;
 
 /**
  * @author Megam (Ty Strong)
  */
 public class Main {
+    // Constants for IP and Port input text placeholders
     private static final String ipFieldPlaceholderText = "IP Address";
     private static final String portNumberPlaceholderText = "Port Number";
     /**
@@ -16,7 +18,7 @@ public class Main {
      * That is the only purpose of this function.
      * @param msg
      */
-    private static void log(String msg) {
+    public static void log(String msg) {
         System.out.println(msg);
     }
 
@@ -25,6 +27,15 @@ public class Main {
         JPanel mainPanel = new JPanel();
         JLabel welcomeMessage = new JLabel("Welcome to ChatApp");
         JButton exitButton = new JButton("Exit");
+        exitButton.setBounds(40,180,200,200);
+        exitButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                log("Button pressed");
+                log("Exit application");
+                System.exit(0);
+            }
+        });
         JTextField ipField = new JTextField(ipFieldPlaceholderText);
         ipField.addFocusListener(new FocusListener() {
             @Override
@@ -59,6 +70,7 @@ public class Main {
         });
         JButton connectButton = new JButton("Connect");
         connectButton.setBounds(40,300, 200,200);
+        // new actionLister can be replaced with lambda, but I prefer this.
         connectButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -67,16 +79,18 @@ public class Main {
                 log(ip);
                 log(port);
                 // Connect to Server client
-                // Connection.TCPconnect(ip, port);
+                Connection.connectToHost(ip,port);
             }
         });
-        exitButton.setBounds(40,180,200,200);
-        exitButton.addActionListener(new ActionListener() {
+        JButton hostButton = new JButton("Host");
+        hostButton.setBounds(40,320,200,200);
+        hostButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                log("Button pressed");
-                log("Exit application");
-                System.exit(0);
+                String ip = ipField.getText();
+                String port = portField.getText();
+                // start new hosting listen for connections
+                Connection.startHosting(ip,port);
             }
         });
         mainPanel.add(welcomeMessage);
@@ -84,7 +98,8 @@ public class Main {
         mainPanel.add(ipField);
         mainPanel.add(portField);
         mainPanel.add(connectButton);
-        mainPanel.setBounds(40,80,200,200);
+        mainPanel.add(hostButton);
+        mainPanel.setBounds(40,80,20,200);
         mainPanel.setBackground(Color.gray);
         mainFrame.add(mainPanel);
         mainFrame.setSize(800,800);
