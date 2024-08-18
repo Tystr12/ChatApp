@@ -1,3 +1,4 @@
+import javax.swing.*;
 import java.io.*;
 import java.net.*;
 
@@ -34,6 +35,7 @@ public class Connection {
             Main.log("Connected to host " + ip +" " + port);
 
             Main.setOutputStream(out);
+            Main.setInputStream(in);
 
             // Thread to listen to new messages
             new Thread(() -> listenForMessages(in, "Client")).start();
@@ -48,7 +50,9 @@ public class Connection {
         try  {
             String message;
             while((message = in.readLine()) != null) {
+                String finalMessage = senderLabel + "received: " + message;
                 Main.log(senderLabel + " Received: " + message);
+                SwingUtilities.invokeLater(() -> Main.displayMessage(finalMessage));
             }
         } catch (IOException e) {
             e.printStackTrace();
@@ -82,6 +86,7 @@ public class Connection {
             Main.log("Client connected");
 
             Main.setOutputStream(out);
+            Main.setInputStream(in);
 
             new Thread(() -> listenForMessages(in, "Server")).start();
 

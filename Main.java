@@ -41,7 +41,7 @@ public class Main {
     }
 
     public static void displayMessage(String msg) {
-        chatArea.append(msg + "\n");
+        chatArea.append(msg);
     }
 
     private static void sendMessage () {
