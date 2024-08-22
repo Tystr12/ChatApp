@@ -40,8 +40,20 @@ public class Main {
         in = reader;
     }
 
-    public static void displayMessage(String msg) {
-        chatArea.append(msg);
+    public static void displayMessage(String msg, boolean isSystemMessage) {
+        if(isSystemMessage) {
+            chatArea.append(msg +"\n");
+            return;
+        } else {
+            chatArea.append(msg +"\n");
+        }
+
+    }
+
+    private static void sendSystemMessage(SystemMessage.SysMessage sysMessage) {
+        out = connection.out;
+        out.println(sysMessage.getMessage() + "\n");
+        out.flush();
     }
 
     private static void sendMessage () {
@@ -51,9 +63,9 @@ public class Main {
             out.println(message);
             out.flush();
             if(isServer) {
-                displayMessage("Server sent: " + message);
+                displayMessage("Server sent: " + message +"`\n", false);
             } else {
-                displayMessage("Client sent: " + message);
+                displayMessage("you sent: " + message + "\n", false);
             }
             messageField.setText("");
         }
@@ -118,6 +130,8 @@ public class Main {
                 log(port);
                 // Connect to Server client
                 connection = new Connection(ip, port);
+                displayMessage(SystemMessage.SysMessage.CONNECTION_SUCCESS.getMessage(), true);
+                sendSystemMessage(SystemMessage.SysMessage.CONNECTION_SUCCESS);
 
             }
         });
@@ -141,6 +155,7 @@ public class Main {
         exitButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
+                sendSystemMessage(SystemMessage.SysMessage.OTHER_USER_EXIT);
                 log("Button pressed");
                 log("Exit application");
                 System.exit(0);

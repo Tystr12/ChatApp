@@ -1,3 +1,4 @@
+import javax.sound.midi.SysexMessage;
 import javax.swing.*;
 import java.io.*;
 import java.net.*;
@@ -38,7 +39,7 @@ public class Connection {
             Main.setInputStream(in);
 
             // Thread to listen to new messages
-            new Thread(() -> listenForMessages(in, "Client")).start();
+            new Thread(() -> listenForMessages(in, "Server")).start();
 
             // Thread that sends messages
             new Thread(() -> sendMessage(out)).start();
@@ -50,9 +51,16 @@ public class Connection {
         try  {
             String message;
             while((message = in.readLine()) != null) {
-                String finalMessage = senderLabel + "received: " + message;
-                Main.log(senderLabel + " Received: " + message);
-                SwingUtilities.invokeLater(() -> Main.displayMessage(finalMessage));
+                if(message.equals(SystemMessage.SysMessage.CONNECTION_SUCCESS.getMessage())) {
+                    String finalmessage = SystemMessage.SysMessage.CONNECTION_SUCCESS.getMessage();
+                    SwingUtilities.invokeLater(() -> Main.displayMessage(finalmessage, true));
+                } else {
+                    String finalMessage = senderLabel + " Sent: " + message;
+                    Main.log(senderLabel + " Received: " + message);
+                    SwingUtilities.invokeLater(() -> Main.displayMessage(finalMessage,false));
+                }
+
+
             }
         } catch (IOException e) {
             e.printStackTrace();
@@ -88,7 +96,7 @@ public class Connection {
             Main.setOutputStream(out);
             Main.setInputStream(in);
 
-            new Thread(() -> listenForMessages(in, "Server")).start();
+            new Thread(() -> listenForMessages(in, "Client")).start();
 
             new Thread(() -> sendMessage(out)).start();
 
